@@ -36,13 +36,15 @@ public:
 
     static bool removeDir(const std::string& path);
 
-    static bool moveFile(const std::string& src_path, const std::string& des_path);
+    static bool moveFile(const std::string& from_path, const std::string& to_path);
 
-    static bool moveDir(const std::string& src_path, const std::string& des_path);
+    static bool moveDir(const std::string& from_path, const std::string& to_path);
 
-    static bool copyFile(const std::string& src_path, const std::string& des_path);
+    static bool copyFile(const std::string& from_path, const std::string& to_path);
 
-    static bool copyDir(const std::string& src_path, const std::string& des_path);
+    static bool copyDir(const std::string& from_path, const std::string& to_path);
+
+    static bool mergeDir(const std::string& from_path, const std::string& to_path);
 };
 }
 
