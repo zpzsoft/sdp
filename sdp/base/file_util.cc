@@ -159,7 +159,6 @@ bool FileUtil::moveDir(const std::string& from_path, const std::string& to_path)
     return false;
 }
 
-//not test
 bool FileUtil::copyFile(const std::string& from_path, const std::string& to_path)
 {
     const std::size_t buf_size = 8196;
@@ -195,7 +194,6 @@ bool FileUtil::copyFile(const std::string& from_path, const std::string& to_path
     return true;
 }
 
-//not test
 bool FileUtil::copyDir(const std::string& from_path, const std::string& to_path)
 {
     DIR *dir = NULL;

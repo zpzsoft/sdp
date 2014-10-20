@@ -17,7 +17,10 @@ int main(int argc, char ** argv)
 4, test create dir. \n\
 5, test create remove file.\n\
 6, test create remove dir.\n\
-7, test get file type.\n");
+7, test get file type.\n\
+8, test copy file.\n\
+9, test copy dir.\n\
+");
 
     printf("take a choice :\n");
 
@@ -59,6 +62,27 @@ int main(int argc, char ** argv)
         case '7': {
             FileUtil::FileType type = FileUtil::getFileType(test_path);
             printf("get file type : %d at path :%s \n", type, test_path);
+        }
+        case '8': {
+            if (argc < 3)
+                printf("copy file need output path\n");
+            else {
+                char* out_path = argv[2];
+                bool ret = FileUtil::copyFile(test_path, out_path);
+                printf("copy file ret :%d\n", ret);
+            }
+            break;
+        }
+        case '9': {
+            if (argc < 3)
+                printf("copy dir need output path\n");
+            else {
+                char* out_path = argv[2];
+                bool ret = FileUtil::copyDir(test_path, out_path);
+                printf("copy dir ret :%d\n", ret);
+            }
+
+            break;
         }
         default:
             break;
