@@ -3,48 +3,62 @@
 
 #include <iostream>
 
+#include <sdp/base/error_code.h>
+
 namespace sdp{
 
 class FileUtil{
 public:
-    enum FileType {
-        FILETYPE_REG     = 1,    //regular file
-        FILETYPE_DIR     = 2,    //directory file
-        FILETYPE_CHR     = 3,    //character special file
-        FILETYPE_BLK     = 4,    //block special file
-        FILETYPE_FIFO    = 5,    //pipe or FIFO
-        FILETYPE_LNK     = 6,    //symbolic link
-        FILETYPE_SOCK    = 7,    //socket
+  enum FileType {
+    FILETYPE_REG     = 1,    //regular file
+    FILETYPE_DIR     = 2,    //directory file
+    FILETYPE_CHR     = 3,    //character special file
+    FILETYPE_BLK     = 4,    //block special file
+    FILETYPE_FIFO    = 5,    //pipe or FIFO
+    FILETYPE_LNK     = 6,    //symbolic link
+    FILETYPE_SOCK    = 7,    //socket
 
-        FILETYPE_UNKNOW  = 9,
-        FILETYPE_MAX     = 10,
-    };
+    FILETYPE_UNKNOW  = 9,
+    FILETYPE_MAX     = 10,
+  };
+
+  enum CopyOption {
+    FAIL_IF_EXISTS = 1,
+    OVERWRITE_IF_EXISTS = 2,
+    COPYOPTION_MAX = 10
+  };
 
 public:    
-    static bool isDir(const std::string& path);
+  static bool isDir(const std::string& path);
 
-    //is regular file.
-    static bool isFile(const std::string& path);
+  //is regular file.
+  static bool isFile(const std::string& path);
 
-    static FileType getFileType(const std::string& path);
+  static FileType getFileType(const std::string& path, ErrorCode& err);
 
-    static bool createFile(const std::string& path);
+  static bool createFile(const std::string& path, ErrorCode& err,
+                         CopyOption = FAIL_IF_EXISTS);
 
-    static bool createDir(const std::string& path);
+  static bool createDir(const std::string& path, ErrorCode& err, 
+                        CopyOption = FAIL_IF_EXISTS);
 
-    static bool removeFile(const std::string& path);
+  static bool removeFile(const std::string& path, ErrorCode& err);
 
-    static bool removeDir(const std::string& path);
+  static bool removeDir(const std::string& path, ErrorCode& err);
 
-    static bool moveFile(const std::string& from_path, const std::string& to_path);
+  static bool moveFile(const std::string& from_path, const std::string& to_path,
+                       ErrorCode& err, CopyOption = FAIL_IF_EXISTS);
 
-    static bool moveDir(const std::string& from_path, const std::string& to_path);
+  //merge files in two dir.
+  static bool moveDir(const std::string& from_path, const std::string& to_path,
+                      ErrorCode& err, CopyOption = FAIL_IF_EXISTS);
 
-    static bool copyFile(const std::string& from_path, const std::string& to_path);
-
-    static bool copyDir(const std::string& from_path, const std::string& to_path);
-
-    static bool mergeDir(const std::string& from_path, const std::string& to_path);
+  static bool copyFile(const std::string& from_path, const std::string& to_path, 
+                       ErrorCode& err, CopyOption = FAIL_IF_EXISTS);
+  
+  //TODO:merge files in two dir.
+  static bool copyDir(const std::string& from_path, const std::string& to_path,
+                      ErrorCode& err, CopyOption = FAIL_IF_EXISTS);
 };
 }
 
