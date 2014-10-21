@@ -88,7 +88,7 @@ int main(int argc, char ** argv)
         char* out_path = argv[2];
         ErrorCode error;
         bool ret = FileUtil::copyDir(test_path, out_path, error, FileUtil::OVERWRITE_IF_EXISTS);
-        printf("copy dir ret :%d\n", ret);
+        printf("copy dir ret :%d with  error :%s\n", ret, error.get_msg().c_str());
       }
 
       break;

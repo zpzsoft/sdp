@@ -124,11 +124,13 @@ bool FileUtil::createDir(const std::string& path, ErrorCode& err,
     return false;
 
   if (option == OVERWRITE_IF_EXISTS && isDir(path)) {
-    ErrorCode remove_dir_error;
-    if (error(!removeDir(path, remove_dir_error), err, remove_dir_error))
+    if (error(::access(path.c_str(), R_OK | W_OK) < 0, err, 
+             OPERATION_NOT_PERMITTED,
+             "FileUtil::createDir"))
       return false;
-  }
-    
+    else
+      return true;
+  }  
 
   int ret = ::mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH |S_IXOTH);
   
@@ -186,9 +188,22 @@ bool FileUtil::moveFile(const std::string& from_path,
                         ErrorCode& err,
                         CopyOption option)
 {
-  if (error(option == FAIL_IF_EXISTS && isFile(to_path), 
-            err, FILE_EXISTS, "FileUtil::moveFile"))
+  if (!isFile(from_path)) {
+    err.assign(NO_SUCH_FILE_OR_DIRECTORY, "File::moveFile");
     return false;
+  }
+  
+  if (isFile(to_path)) {
+    if (option == FAIL_IF_EXISTS) {
+      err.assign(FILE_EXISTS, "FileUtil::moveFile");
+      return false;
+    } else if (option == OVERWRITE_IF_EXISTS) {
+      ErrorCode remove_file_error;
+      if (error(!removeFile(to_path, remove_file_error),
+                err, remove_file_error))
+        return false;
+    }
+  }
   
   int ret = ::rename(from_path.c_str(), to_path.c_str());
 
@@ -203,19 +218,21 @@ bool FileUtil::moveDir(const std::string& from_path,
                        ErrorCode& err,
                        CopyOption option)
 {
-  if (error(option == FAIL_IF_EXISTS && isFile(to_path), 
+  if (error(!isDir(from_path), err, NO_SUCH_FILE_OR_DIRECTORY,
+            "FileUtil::moveDir"))
+    return false;
+  
+  if (error(option == FAIL_IF_EXISTS && isDir(to_path), 
             err, FILE_EXISTS, "FileUtil::moveDir"))
     return false;
-
-  if ( option == OVERWRITE_IF_EXISTS && isDir(to_path)) {
-    ErrorCode remove_dir_error;
-    if (error(!removeDir(to_path, remove_dir_error), err, remove_dir_error))
-      return false;
-  }
   
-  int ret = ::rename(from_path.c_str(), to_path.c_str());
-
-  if (error(ret != 0, err, Errc(errno), "FileUtil::moveDir"))
+  ErrorCode copy_dir_error;
+  ErrorCode remove_dir_error;
+  if (error(!copyDir(from_path, to_path, copy_dir_error,
+                     option), err, copy_dir_error))
+    return false;
+  if (error(!removeDir(from_path,remove_dir_error),
+            err, remove_dir_error))
     return false;
   
   return true;
@@ -233,25 +250,23 @@ bool FileUtil::copyFile(const std::string& from_path, const std::string& to_path
             "FileUtil:copyFile"))
     return false;
 
-  if (error(option == FAIL_IF_EXISTS && isFile(to_path), 
-            err, FILE_EXISTS,
-            "FileUtil:copyFile")) {
-    ::fclose(infile);
-    return false; 
-  } 
-  
-  ErrorCode remove_file_error;
-  if (error(option == OVERWRITE_IF_EXISTS && 
-            isFile(to_path) &&
-            !removeFile(to_path, remove_file_error), err, remove_file_error))
-    return false;
+  if (isFile(to_path)) {
+    if (option == FAIL_IF_EXISTS) {
+      err.assign(FILE_EXISTS, "FileUtil::copyFile");
+      return false;
+    } else if (option == OVERWRITE_IF_EXISTS) {
+      ErrorCode remove_file_error;
+      if (error(!removeFile(to_path, remove_file_error), err, remove_file_error))
+        return false;
+    }
+  }
 
   outfile = fopen(to_path.c_str(), "w+");
   if (error(outfile == NULL, err, 
             RESOURCE_UNAVAILABLE_TRY_AGAIN,
             "FileUtil::copyFile"))
     return false;
-
+            
   size_t sz, sz_read = 1, sz_write = 0;
   while (sz_read) {
     memset(buf, 0, buf_size);
@@ -281,10 +296,15 @@ bool FileUtil::copyDir(const std::string& from_path, const std::string& to_path,
             "FileUtil::copyDir"))
     return false;
 
-  if (!isDir(to_path.c_str())) {
+  if (isDir(to_path)) {
+    if (option == FAIL_IF_EXISTS) {
+      err.assign(FILE_EXISTS, "FileUtil::copyDir");
+      return false;
+    }
+  } else {
     int ret = ::mkdir(to_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     
-    if (error(ret != 0, err, Errc(errno), "FileUtil::copyDir"))
+    if (error(ret != 0, err, Errc(errno), "FileUtil::copyDir make dir failed."))
       return false;
   }
     
@@ -300,7 +320,7 @@ bool FileUtil::copyDir(const std::string& from_path, const std::string& to_path,
         continue;
       
       ErrorCode copy_dir_error;
-      if (error(!copyDir(current_path.c_str(), target_path.c_str(), copy_dir_error), err, copy_dir_error))
+      if (error(!copyDir(current_path.c_str(), target_path.c_str(), copy_dir_error, option), err, copy_dir_error))
         return false;
     }
     else {
