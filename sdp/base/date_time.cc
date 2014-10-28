@@ -66,7 +66,7 @@ long long DateTime::refresh() {
     day_of_year_ = 0;
   }
 
-  long dif = (from1970_01_01_ - last_seconds)*1000 +
+  long dif = (from1970_01_01_ - last_seconds)*1000000 +
     hour_minute_seconds_.useconds - last_useconds;
 
   return dif;
@@ -83,6 +83,10 @@ std::string DateTime::toString() const{
           hour_minute_seconds_.minute,
           hour_minute_seconds_.seconds);
   return time_buf;
+}
+
+bool DateTime::isValid() const {
+  return this->from1970_01_01_ >= 0;
 }
   
 long long DateTime::operator- (const DateTime& dt) {

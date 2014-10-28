@@ -37,6 +37,8 @@ public:
 
   static FileType getFileType(const std::string& path, ErrorCode& err);
 
+  static size_t getFileSize(const std::string& path, ErrorCode& err);
+
   static bool createFile(const std::string& path, ErrorCode& err,
                          CopyOption = FAIL_IF_EXISTS);
 

@@ -35,10 +35,12 @@ public:
 
   inline long get_from1970_01_01() const { return from1970_01_01_;}
 
-  //in microseconds
+  //in microseconds (1/1000000 s).
   long long refresh(void);
 
   std::string toString() const;
+
+  bool isValid() const;
 
   long long operator- (const DateTime& time);
 

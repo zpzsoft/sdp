@@ -79,7 +79,16 @@ FileUtil::FileType FileUtil::getFileType(const std::string& path,
     file_type = FILETYPE_SOCK;
   return file_type;
 }
-    
+
+size_t FileUtil::getFileSize(const std::string& path, ErrorCode& err) {
+  size_t size = 0;
+  struct stat st;
+  
+  if (::stat(path.c_str(), &st) == 0)
+    size = st.st_size;
+  
+  return size;
+}
 bool FileUtil::createFile(const std::string& path,ErrorCode& err,
                           CopyOption option)
 {
