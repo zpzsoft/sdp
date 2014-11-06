@@ -3,9 +3,11 @@
 
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 
 namespace sdp {
 
+//only support integral type and string.
 template <typename T>
 class Convert {
 public:
@@ -24,6 +26,8 @@ public:
   long toLong() const;
 
   long long toLongLong() const;
+
+  void printType();
 
 private:
   Convert(){}
@@ -54,43 +58,28 @@ std::string Convert<T>::toString() const {
 
 template <typename T>  
 int Convert<T>::toInt() const {
-  int* ret = dynamic_cast<int*>(&value_);
-
-  if (ret != NULL)
-    return *ret;
-  
-  return 0;
+  return static_cast<int>(value_);
 }
 
 template <typename T>  
 double Convert<T>::toDouble() const {
-  double* ret = dynamic_cast<double*>(&value_);
-
-  if (ret != NULL)
-    return *ret;
-  
-  return 0;
+  return static_cast<double>(value_);
 }
 
 template <typename T>  
 long Convert<T>::toLong() const {
-  long* ret = dynamic_cast<long*>(&value_);
-
-  if (ret != NULL)
-    return *ret;
-  
-  return 0;
+  return static_cast<long>(value_);
 }
 
 template <typename T>  
 long long Convert<T>::toLongLong() const {
-  long long* ret = dynamic_cast<long long*>(&value_);
-
-  if (ret != NULL)
-    return *ret;
-  
-  return 0;
+  return static_cast<long long>(value_);
 }
 
+template <typename T>
+void Convert<T>::printType() {
+  std::cout<<typeid(value_).name()<<std::endl;
+}
+  
 } //end of sdp namespace
 #endif //end of SDP_BASE_CONVERT_H
