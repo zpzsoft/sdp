@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include <sdp/base/date_time.hpp>
+#include <sdp/base/date_time.h>
 
 using namespace std;
 

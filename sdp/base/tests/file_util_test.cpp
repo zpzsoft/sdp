@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <curses.h>
-#include <sdp/base/file_util.hpp>
+#include <sdp/base/file_util.h>
 
 using namespace sdp;
 
